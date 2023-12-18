@@ -11,6 +11,9 @@ type Logger interface {
 	Log(message string)
 }
 
+// Function types can be called directly
+// The LogAdaptor function type meets the Logger interface so we should
+// be focusing on making our written functions align to LogAdaptor signature
 type LogAdapter func(message string)
 
 type SimpleDataStore struct {
@@ -21,6 +24,8 @@ func main() {
 
 }
 
+// These are business logic function
+// Make function name different from interface as PoC
 func LogOutput(message string) {
 	fmt.Println(message)
 }
@@ -40,7 +45,8 @@ func (sds SimpleDataStore) UserNameForID(userID string) (string, bool) {
 	return name, ok
 }
 
-// lg is a function type, so we can call it
+// This just needs to meet the LogAdapter interface
+// The LogAdapter interface 'bridges' to the Logger interface
 func (lg LogAdapter) Log(message string) {
 	lg(message)
 }
