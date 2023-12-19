@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // Interfaces enable us to decouple functionality from implementation
 type DataStore interface {
@@ -18,6 +21,11 @@ type LogAdapter func(message string)
 
 type SimpleDataStore struct {
 	userData map[string]string
+}
+
+type SimpleLogic struct {
+	l  Logger
+	ds DataStore
 }
 
 func main() {
@@ -45,8 +53,32 @@ func (sds SimpleDataStore) UserNameForID(userID string) (string, bool) {
 	return name, ok
 }
 
+func (sl SimpleLogic) SayHello(userID string) (string, error) {
+	sl.l.Log("calling SayHello for " + userID)
+
+	name, ok := sl.ds.UserNameForID(userID)
+	if !ok {
+		return "", errors.New("unknown user")
+	}
+
+	return "Hello, " + name, nil
+}
+
+func (sl SimpleLogic) SayGoodbye(userID string) (string, error) {
+	sl.l.Log("calling SayGoodbye for " + userID)
+
+	name, ok := sl.ds.UserNameForID(userID)
+	if !ok {
+		return "", errors.New("unknown user")
+	}
+
+	return "Goodbye, " + name, nil
+}
+
 // This just needs to meet the LogAdapter interface
 // The LogAdapter interface 'bridges' to the Logger interface
+// The fact that LogAdapter is a type means we can use explicit
+// type conversions for functions that adopt the same signature
 func (lg LogAdapter) Log(message string) {
 	lg(message)
 }
